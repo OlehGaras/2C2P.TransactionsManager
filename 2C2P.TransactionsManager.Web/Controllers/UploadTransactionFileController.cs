@@ -1,13 +1,18 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using _2C2P.TransactionsManager.Domain.Service.Abstractions;
+using _2C2P.TransactionsManager.Dto;
 using Microsoft.AspNetCore.Mvc;
 
 namespace _2C2P.TransactionsManager.Controllers
 {
     public class UploadTransactionFileController : Controller
     {
-        public UploadTransactionFileController()
+        private readonly IUploadService _uploadService;
+
+        public UploadTransactionFileController(IUploadService uploadService)
         {
+            _uploadService = uploadService;
         }
 
         public IActionResult Upload()
@@ -16,10 +21,25 @@ namespace _2C2P.TransactionsManager.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Upload(IFormFile file)
+        public async Task<ActionResult> Upload(UploadDocumentDto doc)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(ModelState);
+            }
 
-            await Task.CompletedTask;
+            using (var stream = doc.FormFile.OpenReadStream())
+            {
+                var serviceResult =
+                    await _uploadService.UploadTransactionsFileAsync(stream, doc.GetExtension(),
+                        CancellationToken.None);
+
+                if (serviceResult.HasErrors)
+                {
+                    return BadRequest(serviceResult.Errors);
+                }
+            }
+
             return View();
         }
     }
