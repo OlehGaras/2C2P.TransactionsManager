@@ -21,6 +21,7 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\2C2P.TransactionsManager.Data.EntityFramework\2C2P.TransactionsManager.Data.EntityFramework.csproj" />
     <ProjectReference Include="..\2C2P.TransactionsManager.Domain.Service\2C2P.TransactionsManager.Domain.Service.csproj" />
   </ItemGroup>
 

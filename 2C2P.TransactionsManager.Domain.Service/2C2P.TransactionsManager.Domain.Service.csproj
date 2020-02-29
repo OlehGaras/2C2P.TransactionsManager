@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\2C2P.TransactionsManager.Data.Abstractions\2C2P.TransactionsManager.Data.Abstractions.csproj" />
     <ProjectReference Include="..\2C2P.TransactionsManager.Domain.Model\2C2P.TransactionsManager.Domain.Model.csproj" />
     <ProjectReference Include="..\2C2P.TransactionsManager.Infrastructure\2C2P.TransactionsManager.Infrastructure.csproj" />
   </ItemGroup>
