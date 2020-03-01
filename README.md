@@ -3,7 +3,7 @@
 
 ## How to run?
 - Open 2C2P.TransactionsManager.sln file in visual studio;
-- Run update-database command in power shell window => db should be creted;
+- Run "update-database" command in power shell window => db should be created;
 - Run F5;
 - Open browser in localhost:5000;
 
