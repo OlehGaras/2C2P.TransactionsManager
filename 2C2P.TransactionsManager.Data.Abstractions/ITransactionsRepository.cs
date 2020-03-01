@@ -10,5 +10,7 @@ namespace _2C2P.TransactionsManager.Data.Abstractions
         Task SaveTransactionsAsync(List<Transaction> transaction);
         Task UpsertTransactionsAsync(List<Transaction> transactions);
         Task<List<Transaction>> GetAllAsync();
+        Task<List<Transaction>> GetAllByFiltersAsync(string currency, TransactionStatus? status = null,
+            DateTime? from = null, DateTime? to = null);
     }
 }

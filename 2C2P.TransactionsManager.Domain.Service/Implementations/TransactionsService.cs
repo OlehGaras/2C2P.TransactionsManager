@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using _2C2P.TransactionsManager.Data.Abstractions;
 using _2C2P.TransactionsManager.Domain.Model;
 using _2C2P.TransactionsManager.Domain.Service.Abstractions;
+using _2C2P.TransactionsManager.Domain.Service.Filters;
 using Microsoft.Extensions.Logging;
 
 namespace _2C2P.TransactionsManager.Domain.Service.Implementations
@@ -49,6 +50,68 @@ namespace _2C2P.TransactionsManager.Domain.Service.Implementations
                     $"Error occured during upserting transactions: {nameof(TransactionsService)}.");
                 throw;
             }
+        }
+
+        public async Task<ServiceResult<List<Transaction>>> GetAllAsync(TransactionsFilter transactionsFilter = null)
+        {
+            try
+            {
+                // filter is empty => return all
+                if (transactionsFilter == null)
+                {
+                    return new ServiceResult<List<Transaction>>
+                    {
+                        Result = await _transactionsRepository.GetAllAsync()
+                    };
+                }
+
+                // filter has non existed currency => return empty list
+                if (!TryParseTransactionStatus(transactionsFilter.Status, out TransactionStatus? status))
+                {
+                    return new ServiceResult<List<Transaction>>();
+                }
+
+                List<Transaction> transactions;
+
+                // filter does not have correct range => don't filter by range
+                if (transactionsFilter.Range == null || !transactionsFilter.Range.IsValid)
+                {
+                    transactions = await _transactionsRepository.GetAllByFiltersAsync(transactionsFilter.Currency, status);
+                }
+                // filter has correct range
+                else
+                {
+                    transactions = await _transactionsRepository.GetAllByFiltersAsync(transactionsFilter.Currency, status,
+                        transactionsFilter.Range.From, transactionsFilter.Range.To);
+                }
+
+                return new ServiceResult<List<Transaction>>()
+                {
+                    Result = transactions
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error occured getting transactions by filter. Filter: {transactionsFilter}");
+                throw;
+            }
+        }
+
+        private bool TryParseTransactionStatus(string status, out TransactionStatus? parsedStatus)
+        {
+            parsedStatus = null;
+            if (string.IsNullOrEmpty(status))
+            {
+                return true;
+            }
+
+            if (Enum.TryParse(typeof(TransactionStatus), status, true, out object transactionStatus))
+            {
+                parsedStatus = (TransactionStatus)transactionStatus;
+                return true;
+            }
+
+            return false;
         }
     }
 }

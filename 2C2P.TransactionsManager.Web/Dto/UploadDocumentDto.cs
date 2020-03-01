@@ -5,7 +5,7 @@ using _2C2P.TransactionsManager.Infrastructure;
 using _2C2P.TransactionsManager.Web.Attributes;
 using Microsoft.AspNetCore.Http;
 
-namespace _2C2P.TransactionsManager.Dto
+namespace _2C2P.TransactionsManager.Web.Dto
 {
     public class UploadDocumentDto
     {

@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using _2C2P.TransactionsManager.Domain.Service.Abstractions;
-using _2C2P.TransactionsManager.Dto;
+using _2C2P.TransactionsManager.Web.Dto;
 using Microsoft.AspNetCore.Mvc;
 
 namespace _2C2P.TransactionsManager.Controllers

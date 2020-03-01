@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using _2C2P.TransactionsManager.Data.Abstractions;
@@ -59,6 +60,36 @@ namespace _2C2P.TransactionsManager.Data.EntityFramework
                     .ToList();
 
             await SaveTransactionsAsync(transactionsToAdd);
+        }
+
+        public async Task<List<Transaction>> GetAllByFiltersAsync(string currency,
+            TransactionStatus? status = null, DateTime? from = null, DateTime? to = null)
+        {
+            var query = _transactionRepository.All();
+
+            if (!string.IsNullOrEmpty(currency))
+            {
+                query = query.Where(entity => entity.CurrencyCode == currency);
+            }
+
+            if (status.HasValue)
+            {
+                query = query.Where(entity => entity.Status == (int)status.Value);
+            }
+
+            if (from.HasValue)
+            {
+                query = query.Where(entity => entity.TransactionDate >= from.Value);
+            }
+
+            if (to.HasValue)
+            {
+                query = query.Where(entity => entity.TransactionDate <= to.Value);
+            }
+
+            var entities = await query.ToListAsync();
+
+            return _mapper.Map<List<Transaction>>(entities);
         }
     }
 }
