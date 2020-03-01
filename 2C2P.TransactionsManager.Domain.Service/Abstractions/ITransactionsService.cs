@@ -8,9 +8,9 @@ namespace _2C2P.TransactionsManager.Domain.Service.Abstractions
 {
     public interface ITransactionsService
     {
-        Task<ServiceResult> UpsertTransactionsAsync(List<Transaction> transactions,
+        Task UpsertTransactionsAsync(List<Transaction> transactions,
             CancellationToken cancellationToken = default);
 
-        Task<ServiceResult<List<Transaction>>> GetAllAsync(TransactionsFilter transactionsFilter = null);
+        Task<List<Transaction>> GetAllAsync(TransactionsFilter transactionsFilter = null);
     }
 }

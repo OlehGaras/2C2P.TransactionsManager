@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using _2C2P.TransactionsManager.Domain.Service.Abstractions;
@@ -25,27 +24,14 @@ namespace _2C2P.TransactionsManager.Domain.Service.Implementations
             _logger = logger;
         }
 
-        public async Task<ServiceResult> UploadTransactionsFileAsync(Stream fileStream, FileExtension fileExtension,
+        public async Task UploadTransactionsFileAsync(Stream fileStream, FileExtension fileExtension,
             CancellationToken cancellationToken)
         {
             try
             {
-                var parseResult = _fileParseStrategy.Parse(fileStream, fileExtension);
-                if (parseResult.IsValid)
-                {
-                    var transactions = parseResult.MappedRecords;
-                    return await _transactionsService.UpsertTransactionsAsync(transactions, cancellationToken);
-                }
+                var transactions = _fileParseStrategy.Parse(fileStream, fileExtension);
 
-                var parseErrors = parseResult.Errors.Select(result =>
-                    $"Message: {string.Join('|', result.Messages)}; Record: {result.UnmappedRecord}").ToList();
-
-                parseErrors.ForEach(error => _logger.LogError(error));
-                
-                return new ServiceResult<bool>()
-                {
-                    Errors = parseErrors
-                };
+                await _transactionsService.UpsertTransactionsAsync(transactions, cancellationToken);
             }
             catch (Exception ex)
             {

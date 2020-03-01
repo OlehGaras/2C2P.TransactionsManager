@@ -7,7 +7,7 @@ namespace _2C2P.TransactionsManager.Domain.Service.Abstractions
 {
     public interface IUploadService
     {
-        Task<ServiceResult> UploadTransactionsFileAsync(Stream fileStream, FileExtension fileExtension,
+        Task UploadTransactionsFileAsync(Stream fileStream, FileExtension fileExtension,
             CancellationToken cancellationToken);
     }
 }

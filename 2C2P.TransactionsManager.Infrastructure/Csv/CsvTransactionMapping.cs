@@ -3,9 +3,9 @@ using TinyCsvParser.TypeConverter;
 
 namespace _2C2P.TransactionsManager.Infrastructure.Csv
 {
-    public class CsvTransactionDtoMapping : CsvMapping<CsvTransactionRecord>
+    public class CsvTransactionMapping : CsvMapping<CsvTransactionRecord>
     {
-        public CsvTransactionDtoMapping()
+        public CsvTransactionMapping()
         {
             MapProperty(0, x => x.TransactionId, new MaxLengthStringConverter(50));
             MapProperty(1, x => x.Amount, new DecimalConverter());

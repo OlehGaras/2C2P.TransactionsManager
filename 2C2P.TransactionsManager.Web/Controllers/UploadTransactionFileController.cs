@@ -30,16 +30,12 @@ namespace _2C2P.TransactionsManager.Controllers
 
             using (var stream = doc.FormFile.OpenReadStream())
             {
-                var serviceResult =
-                    await _uploadService.UploadTransactionsFileAsync(stream, doc.GetExtension(),
-                        CancellationToken.None);
-
-                if (serviceResult.HasErrors)
-                {
-                    return BadRequest(serviceResult.Errors);
-                }
+                await _uploadService.UploadTransactionsFileAsync(stream, doc.GetExtension(),
+                    CancellationToken.None);
             }
 
+            // we could return Ok() here
+            // but I return View() to be able to upload new files.
             return View();
         }
     }

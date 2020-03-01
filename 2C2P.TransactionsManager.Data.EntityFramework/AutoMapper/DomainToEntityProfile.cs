@@ -13,8 +13,7 @@ namespace _2C2P.TransactionsManager.Data.EntityFramework.AutoMapper
                 .ForMember(t => t.Status, opt => opt.MapFrom(src => (int) src.Status));
 
             CreateMap<TransactionEntity, Transaction>()
-                .ForMember(t => t.TransactionId, opt => opt.MapFrom(src => src.Id))
-                .ForMember(t => t.Status, opt => opt.MapFrom(src => (TransactionStatus)src.Status));
+                .ConstructUsing(e => new Transaction(e.Id, e.Amount, e.CurrencyCode, e.TransactionDate, (TransactionStatus)e.Status));
         }
     }
 }

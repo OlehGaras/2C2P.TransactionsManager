@@ -8,5 +8,10 @@ namespace _2C2P.TransactionsManager.Infrastructure
         public List<string> Messages { get; set; } = new List<string>();
         public string UnmappedRecord { get; set; }
         public bool HasErrors => Messages.Any();
+
+        public override string ToString()
+        {
+            return $"Messages:{string.Join(',', Messages)}. Record: {UnmappedRecord}";
+        }
     }
 }

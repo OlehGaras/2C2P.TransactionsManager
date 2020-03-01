@@ -3,31 +3,31 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using _2C2P.TransactionsManager.Domain.Model;
-using AutoMapper;
+using Microsoft.Extensions.Logging;
 using TinyCsvParser;
 
 namespace _2C2P.TransactionsManager.Infrastructure.Csv
 {
     public class CsvFileParser : IFileParser
     {
-        private readonly IMapper _mapper;
+        private readonly ILogger<CsvFileParser> _logger;
 
-        public CsvFileParser(IMapper mapper)
+        public CsvFileParser(ILogger<CsvFileParser> logger)
         {
-            _mapper = mapper;
+            _logger = logger;
         }
 
-        public FileParseResult Parse(Stream fileStream)
+        public List<Transaction> Parse(Stream fileStream)
         {
             var csvParserOptions = new CsvParserOptions(false, ',');
-            var csvMapper = new CsvTransactionDtoMapping();
+            var csvMapper = new CsvTransactionMapping();
             var csvParser = new CsvParser<CsvTransactionRecord>(csvParserOptions, csvMapper);
 
             var results = csvParser
                 .ReadFromStream(fileStream, Encoding.UTF8)
                 .ToList();
 
-            var validationResults = results
+            var validationErrorResults = results
                     .Where(result => !result.IsValid)
                     .Select(result =>
                     {
@@ -40,12 +40,10 @@ namespace _2C2P.TransactionsManager.Infrastructure.Csv
                         return validationResult;
                     }).ToList();
 
-            if (validationResults.Any())
+            if (validationErrorResults.Any())
             {
-                return new FileParseResult()
-                {
-                    Errors = validationResults
-                };
+                validationErrorResults.ForEach(error => _logger.LogError(error.ToString()));
+                throw new FileParseException("Errors found inside csv file", validationErrorResults);
             }
 
             var mappedRecords = results
@@ -53,12 +51,12 @@ namespace _2C2P.TransactionsManager.Infrastructure.Csv
                 .Select(result => result.Result)
                 .ToList();
 
-            var transactions = _mapper.Map<List<Transaction>>(mappedRecords);
+            var transactions = mappedRecords
+                .Select(record => new Transaction(record.TransactionId, record.Amount, record.CurrencyCode, 
+                    record.TransactionDate, (TransactionStatus)(int)record.Status))
+                .ToList();
 
-            return new FileParseResult
-            {
-                MappedRecords = transactions
-            };
+            return transactions;
         }
 
         public bool IsApplicable(FileExtension fileExtension)

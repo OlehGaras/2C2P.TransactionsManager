@@ -26,14 +26,9 @@ namespace _2C2P.TransactionsManager.Web.ApiControllers
         [HttpGet]
         public async Task<ActionResult<List<TransactionDto>>> GetAllByFilterAsync([FromQuery] TransactionsFilter transactionsFilter)
         {
-            var serviceResult = await _transactionsService.GetAllAsync(transactionsFilter);
+            var transactions = await _transactionsService.GetAllAsync(transactionsFilter);
 
-            if (serviceResult.HasErrors)
-            {
-                return BadRequest(serviceResult.Errors);
-            }
-
-            var dtos = _mapper.Map<List<TransactionDto>>(serviceResult.Result);
+            var dtos = _mapper.Map<List<TransactionDto>>(transactions);
             return Ok(dtos);
         }
     }

@@ -23,10 +23,9 @@ namespace _2C2P.TransactionsManager.Domain.Service.Implementations
             _logger = logger;
         }
 
-        public async Task<ServiceResult> UpsertTransactionsAsync(List<Transaction> transactions,
+        public async Task UpsertTransactionsAsync(List<Transaction> transactions,
             CancellationToken cancellationToken = default)
         {
-            var result = new ServiceResult();
             try
             {
                 var duplicates = transactions
@@ -37,12 +36,10 @@ namespace _2C2P.TransactionsManager.Domain.Service.Implementations
 
                 if (duplicates.Any())
                 {
-                    result.Errors.Add($"Duplicated transaction Ids found: {string.Join(',', duplicates)}");
-                    return result;
+                    throw new BusinessRuleValidationException($"Duplicated transaction Ids found: {string.Join(',', duplicates)}");
                 }
 
                 await _transactionsRepository.UpsertTransactionsAsync(transactions);
-                return result;
             }
             catch (Exception ex)
             {
@@ -52,23 +49,20 @@ namespace _2C2P.TransactionsManager.Domain.Service.Implementations
             }
         }
 
-        public async Task<ServiceResult<List<Transaction>>> GetAllAsync(TransactionsFilter transactionsFilter = null)
+        public async Task<List<Transaction>> GetAllAsync(TransactionsFilter transactionsFilter = null)
         {
             try
             {
                 // filter is empty => return all
                 if (transactionsFilter == null)
                 {
-                    return new ServiceResult<List<Transaction>>
-                    {
-                        Result = await _transactionsRepository.GetAllAsync()
-                    };
+                    return await _transactionsRepository.GetAllAsync();
                 }
 
                 // filter has non existed currency => return empty list
                 if (!TryParseTransactionStatus(transactionsFilter.Status, out TransactionStatus? status))
                 {
-                    return new ServiceResult<List<Transaction>>();
+                    return new List<Transaction>();
                 }
 
                 List<Transaction> transactions;
@@ -85,10 +79,7 @@ namespace _2C2P.TransactionsManager.Domain.Service.Implementations
                         transactionsFilter.Range.From, transactionsFilter.Range.To);
                 }
 
-                return new ServiceResult<List<Transaction>>()
-                {
-                    Result = transactions
-                };
+                return transactions;
             }
             catch (Exception ex)
             {

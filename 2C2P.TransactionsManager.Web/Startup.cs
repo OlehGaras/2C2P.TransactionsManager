@@ -1,12 +1,15 @@
 ﻿using System;
 using _2C2P.TransactionsManager.Data.Abstractions;
 using _2C2P.TransactionsManager.Data.EntityFramework;
+using _2C2P.TransactionsManager.Domain.Model;
 using _2C2P.TransactionsManager.Domain.Service.Abstractions;
 using _2C2P.TransactionsManager.Domain.Service.Implementations;
 using _2C2P.TransactionsManager.Infrastructure;
 using _2C2P.TransactionsManager.Infrastructure.Csv;
 using _2C2P.TransactionsManager.Infrastructure.Xml;
+using _2C2P.TransactionsManager.Web.ProblemDetails;
 using AutoMapper;
+using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -41,6 +44,12 @@ namespace _2C2P.TransactionsManager.Web
 
             services.AddLogging(builder => { builder.AddConsole(); });
 
+            services.AddProblemDetails(options =>
+            {
+                options.Map<FileParseException>(ex => new FileParseProblemDetails(ex));
+                options.Map<BusinessRuleValidationException>(ex => new BusinessRuleValidationProblemDetails(ex));
+            });
+
             services.AddScoped<IXMlTransactionFileValidator, XmlTransactionFileValidator>();
             services.AddScoped<IFileParser, XmlFileParser>();
             services.AddScoped<IFileParser, CsvFileParser>();
@@ -71,6 +80,7 @@ namespace _2C2P.TransactionsManager.Web
 
             app.UseStaticFiles();
 
+            app.UseProblemDetails();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

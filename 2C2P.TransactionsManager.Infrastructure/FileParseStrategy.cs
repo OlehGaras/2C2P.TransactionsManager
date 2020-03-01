@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using _2C2P.TransactionsManager.Domain.Model;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -19,7 +20,7 @@ namespace _2C2P.TransactionsManager.Infrastructure
             _fileParsers = serviceProvider.GetServices<IFileParser>();
         }
 
-        public FileParseResult Parse(Stream fileStream, FileExtension extension)
+        public List<Transaction> Parse(Stream fileStream, FileExtension extension)
         {
             try
             {
@@ -27,14 +28,14 @@ namespace _2C2P.TransactionsManager.Infrastructure
 
                 if (fileParser == null)
                 {
-                    throw new ArgumentException($"No file parser found to handle the file with extension: {extension}");
+                    throw new FileParseException($"No file parser found to handle the file with extension: {extension}", null);
                 }
 
                 return fileParser.Parse(fileStream);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error while trying to find file parser for extension: {extension}.");
+                _logger.LogError(ex, ex.Message);
                 throw;
             }
         }
